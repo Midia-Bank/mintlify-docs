@@ -1,78 +1,157 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: "Início Rápido"
+description: "Envie seus primeiros dados para a Solomon em poucos minutos"
 ---
 
-## Get started in three steps
+## Comece em três passos
 
-Get your documentation site running locally and make your first customization.
+Configure sua integração com a Solomon e envie seus primeiros pedidos e eventos.
 
-### Step 1: Set up your local environment
+### Passo 1: Configure o acesso à API
 
 <AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
+  <Accordion icon="key" title="Obtenha uma API key durante o onboarding">
+    Durante o onboarding, na seção de integração de plataforma de vendas, selecione a opção "Plataforma Própria" e aguarde os dois tokens
+    de integração serem gerados exibido na tela.
   </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
+  <Accordion icon="key" title="Obtenha uma API key após o onboarding">
+    Para se autenticar na Solomon API, você precisa de uma API Key válida. Para isso:
+      1. Acesse a aba de Chaves de API no canto superior direito (clicando no nome da sua loja).
+      2. Crie uma nova chave com um nome de identificação, do tipo "Plataforma Própria"
+      3. Marque os escopos `write_orders` e `write_products`  
+    Nesse caso, você pode gerar uma API Key tanto para ambiente live quanto para sandbox. 
+  </Accordion>
+</AccordionGroup>
+<Tip>Guarde suas chaves em um local seguro. Elas serão usadas para autenticar todas as requisições feitas.</Tip>
+
+
+### Passo 2: Envie seu primeiro pedido
+
+<AccordionGroup>
+  <Accordion icon="receipt" title="Criar um pedido via API">
+    Faça uma requisição `POST` para o endpoint de pedidos:
+
+    ```bash
+    curl -X POST https://admin-api.solomon.com.br/admin/v1/order \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "orderId": "ord_123456789",
+        "number": 10234,
+        "name": "Pedido #10234",
+        "orderStatus": 0,
+        "createdAt": "2026-01-10T14:32:10Z",
+        "updatedAt": "2026-01-10T14:35:42Z",
+        "totalPrice": 249.90,
+        "shippingPrice": 19.90,
+        "paymentMethod": 2,
+        "installments": 3,
+        "currency": "BRL",
+        "discountCode": "WELCOME10",
+        "provinceCode": "SP",
+        "countryCode": "BR",
+        "utmSource": "facebook",
+        "utmMedium": "cpc",
+        "utmCampaign": "promo_janeiro",
+        "utmContent": "video_1",
+        "utmTerm": "tenis masculino",
+        "userId": "d81a69cf-82d5-4aad-9ecd-5945b3cf3528",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+        "browserIp": "189.45.123.10",
+        "cartToken": "cart_abcd1234",
+        "customer": {
+          "customerId": "cus_987654321",
+          "name": "Cliente Teste",
+          "email": "cliente_teste@email.com",
+          "phone": "+5511999999999",
+          "provinceCode": "SP",
+          "countryCode": "BR",
+          "zip": "12230-000",
+          "city": "São José dos Campos",
+          "createdAt": "2025-11-02T10:15:00Z",
+          "updatedAt": "2026-01-10T14:30:00Z"
+        },
+        "items": [
+          {
+            "itemId": "item_1",
+            "productId": "prod_123",
+            "variantId": "var_azul_42",
+            "quantity": 1,
+            "price": 199.90,
+            "discount": 20.00,
+            "createdAt": "2026-01-10T14:32:10Z",
+            "updatedAt": "2026-01-10T14:32:10Z"
+          }]
+      }'
+    ```
+
+    Se a requisição for bem-sucedida, o pedido será registrado na Solomon.
   </Accordion>
 </AccordionGroup>
 
-### Step 2: Deploy your changes
+
+### Passo 3: Envie um evento com o SDK
 
 <AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+  <Accordion icon="bolt" title="Instale e inicialize o SDK">
+    Instale o SDK da Solomon:
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    ```bash
+    npm install @solomon/events
+    ```
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
+    Inicialize o SDK no seu frontend ou backend:
+
+    ```ts
+    import { SolomonSDK } from "@solomon/events";
+
+    const solomon = new SolomonSDK({
+      companyId: "SEU_COMPANY_ID",
+    });
+    ```
+
+    Envie um evento de purchase:
+
+    ```ts
+    solomon.track("CHECKOUT_COMPLETED", {
+      items: [{
+        item_id: "item_1",
+        item_quantity: 1
+      }]
+    }, {
+      email: "cliente_teste@email.com",
+      phone: "+5511999999999",
+      customer_id: "cus_987654321",
+      cart_token: "cart_abcd1234"
+    });
+    ```
+
+    <Tip>
+      A Solomon utiliza esses eventos para fazer a atribuição correta de cada pedido.
+    </Tip>
   </Accordion>
 </AccordionGroup>
 
-### Step 3: Go live
+## Próximos passos
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+Agora que você conseguiu enviar seu primeiro pedido, explore outras funcionalidades essenciais:
 
-## Next steps
+<CardGroup cols={2}> 
+  <Card title="Enviar e atualizar pedidos" icon="receipt" href="/store/orders"> 
+    Aprenda como enviar pedidos completos, lidar com atualizações de status e evitar duplicações. 
+  </Card> 
+  
+  <Card title="Enviar e atualizar produtos" icon="box" href="/store/products"> 
+    Envie e mantenha o catálogo de produtos sincronizado com a Solomon. 
+  </Card> 
+  
+  <Card title="Enviar eventos do site" icon="wave-pulse" href="/events/development"> 
+    Utilize o SDK para rastrear os demais eventos do site, como page view, add to cart e initiate checkout. 
+  </Card> 
 
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Explorar a Referência da API" icon="code" href="/events/concepts"> 
+    Entenda como desenvolver soluções de forma técnica com a Solomon.
+  </Card> 
 </CardGroup>
 
 <Note>

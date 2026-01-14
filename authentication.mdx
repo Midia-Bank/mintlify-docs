@@ -1,0 +1,114 @@
+---
+title: 'Autenticação'
+description: 'Entenda como a Solomon faz a autenticação da API'
+---
+
+## Visão geral
+
+A comunicação com as APIs da Solomon é feita por meio de **API Keys**, que são chaves de autenticação associadas a uma loja na Solomon e a um conjunto específico de permissões, denominados `scopes `.
+
+Esse modelo permite controle fino de acesso, segurança operacional e separação clara entre ambientes de teste e produção.
+
+---
+
+## Autenticação via API Key
+
+A API Key funciona como um identificador que autoriza requisições às APIs da Solomon.
+
+### Principais características
+
+- A chave secreta de autenticação é exibida apenas uma única vez no momento da criação  
+- Ela deve ser armazenada de forma segura pelo cliente
+- Caso seja perdida ou comprometida, uma nova chave deve ser gerada
+- Toda requisição autenticada deve enviar a chave no header `Authorization`
+
+Exemplo de header:
+
+```txt
+Authorization: Bearer SUA_API_KEY
+```
+
+## Permissões
+
+Toda API Key está obrigatoriamente vinculada à loja na qual foi criada.
+
+Isso significa que:
+
+- Todas as ações executadas com aquela chave afetam **exclusivamente** à loja associada
+- Não é possível usar uma API Key de uma empresa para acessar dados de outra
+- O Company ID é o que define o escopo da operação
+
+Na prática, qualquer requisição autenticada atua em nome daquela empresa dentro da Solomon.
+
+Cada API Key possui também um conjunto de escopos, que são selecionados pelo usuário durante a criação
+e determinam quais ações podem ser executadas.
+
+Os escopos disponíveis atualmente são estes:
+
+| Escopo           | Descrição                                                                 |
+|------------------|---------------------------------------------------------------------------|
+| `orders.write`   | Permite criar e atualizar pedidos da loja via API                         |
+| `products.write`| Permite criar e atualizar produtos e variantes do catálogo da loja via API|
+
+<Info>Recomendamos sempre conceder apenas os escopos necessários para cada integração, reduzindo riscos
+e garantindo maior controle de auditoria sobre as operações realizadas.</Info>
+
+---
+
+## Ambientes: Live e Sandbox
+
+A Solomon trabalha com dois ambientes distintos:
+
+### Sandbox
+
+**URL**: https://admin-api.sandbox.solomon.com.br
+
+Ambiente destinado a teste e homologação. É a alternativa ideal para ser utilizada para
+desenvolvimento e validação da integração com a Solomon, uma vez que as alterações realizadas
+não impactam diretamente nos dados reais da loja.
+
+### Live (Produção)
+
+**URL**: https://admin-api.solomon.com.br
+
+Ambiente de operação real. Todas as ações realizadas neste ambiente afetam os dados
+da loja na Solomon. Sugerimos que seja utilizado apenas após a validação completa
+ser realizada em Sandbox.
+
+> **Importante:**  
+> API Keys geradas para Sandbox não funcionam no ambiente Live, e vice-versa.
+
+--- 
+
+## Boas práticas de segurança
+
+- Nunca exponha a API Key em código público ou repositórios abertos
+- Evite uso da API Key diretamente no frontend sem camadas de proteção
+- Utilize escopos mínimos necessários para cada integração
+- Gere novas chaves sempre que houver suspeita de comprometimento
+
+Essas práticas garantem que a Solomon consiga oferecer segurança, flexibilidade e controle mesmo em integrações complexas e ambientes com múltiplos sistemas conectados.
+
+---
+
+## Como criar uma nova API Key?
+
+<Steps>
+<Step title="Acesse a tela de Chaves de API">
+  <Frame>
+    <img src="/images/chaves-api.png" style={{ borderRadius: '0.5rem' }} />
+  </Frame>
+</Step>
+
+<Step title="Clique no botão para criar uma nova chave">
+  <Frame>
+    <img src="/images/criar-chave.png" style={{ borderRadius: '0.5rem' }} />
+  </Frame>
+</Step>
+
+<Step title="Preencha os campos e clique para gerar a chave secreta">
+  <Frame>
+    <img src="/images/token-gerado.png" style={{ borderRadius: '0.5rem' }} />
+  </Frame>
+</Step>
+</Steps>

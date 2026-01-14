@@ -1,0 +1,297 @@
+---
+title: 'Conceitos'
+description: 'Introdução aos conceitos fundamentais da Solomon'
+---
+
+## Visão geral
+
+Toda interação do usuário com o site pode vir a ser um evento. E estes eventos podem ser utilizados
+tanto para gerar estatísticas de webanalytics quanto para identificar a jornada de compra do cliente ao longo do tempo.
+
+Vamos considerar o seguinte caso:
+
+1. O usuário acessou a página de um produto vindo de um anúncio do Meta Ads
+2. Ele adicionou este produto no carrinho
+3. No entanto, ele continuou olhando outros produtos e não finalizou a compra
+4. Dias depois o mesmo usuário recebe uma campanha de carrinho abandonado via e-mail
+5. Dessa vez, ele finaliza a compra na loja
+
+Conseguimos identificar cada visualização de produto, adição ao carrinho e acesso ao checkout desse usuário
+até a compra. A isso chamamos **eventos do site**.
+
+Mas não só isso, conseguimos identificar também os canais por onde este usuário entrou em cada interação. E a isso
+chamamos **pontos de contato**.
+
+--- 
+
+## Estrutura dos eventos
+
+De modo geral, um evento do site contém as seguintes informações:
+
+- Informações de navegação, como a URL da página onde o evento foi gerado, os parâmetros de UTM, etc.
+- Informações do cliente, como a identificação do navegador e o endereço IP
+
+Eventos relacionados a produto, como visualizações de conteúdo, adições ao carrinho, etc. ainda contém
+as informações relacionadas ao(s) produto(s), como identificador e quantidade.
+
+Utilizamos os eventos para identificar os pontos de contato do usuário, mas aí surge ainda um problema: 
+como relacionar estes eventos a um único usuário e às compras feitas por ele?
+
+## Aliases
+
+Para isso, utilizamos os chamados `custom_aliases`. Um **alias** é um identificador único para um mesmo
+usuário, o que quer dizer que esse identificador enviado no evento deve ser o mesmo para o usuário do lado
+da API também.
+
+Se você envia um determinado `cartToken` no evento de adição ao carrinho, por exemplo, e em seguida envia este
+mesmo `cartToken` em um pedido (via REST API), a sessão no navegador será atrelada àquele pedido.
+
+A Solomon utiliza nativamente o identificador de sessão e o identificador de usuário por padrão como aliases. Porém,
+outros aliases podem ser enviados:
+
+- **User ID**: principal identificador utilizado para relacionar o pedido à sessão no site
+- *Cart Token*: pode ser usado para relacionar um pedido a partir da sessão no site
+- *Email*: pode ser usado para relacionar um pedido a partir da conta do usuário
+- *Customer ID*: pode ser usado para relacionar um pedido a partir da conta do usuário
+- *Phone*: pode ser usado para relacionar uma sessão no checkout ou conta do usuário
+
+Recomendamos fortemente que se utilize de redundância no envio dos aliases. Como os eventos do lado do site podem
+ter falhas de envio, enviar o máximo de aliases sempre que puder aumenta a segurança de que aquele alias será
+atrelado à sessão.
+
+Também recomendamos que o alias `userId`, sendo o mais prioritário no cruzamento de informações, seja
+preenchido sempre com o alias de maior confiança e de maior precedência.
+
+<Tip>
+
+Quanto antes um alias conseguir ser enviado, maiores são as garantias de que conseguiremos atrelar a sessão
+corretamente a um pedido, desde que este alias seja enviado também no campo `userId` do pedido.
+
+</Tip>
+
+## Cookies do servidor
+
+Aqui está como criar um alias perfeito para o `userId` que cumpra os três requisitos:
+- Maior antecedência na criação e envio
+- Persistência a longo prazo
+- Envio tanto do lado do navegador quanto do servidor 
+
+A maioria dos navegadores modernos remove cookies de terceiros e também cookies setados via JavaScript no browser após 
+um curto período.
+
+Isso impacta diretamente a atribuição, pois o usuário que retorna após a expiração dos cookies é tratado como um
+novo usuário. 
+
+A forma confiável de reidentificar usuários ao longo do tempo é usando cookies first-party criados e gerenciados no servidor.
+
+Eles não são afetados por políticas agressivas de browsers, podem durar até 365 dias e permitem a reidentificação consistente
+mesmo com períodos longos entre as compras.
+
+### Configuração
+
+<AccordionGroup>
+  <Accordion icon="server" title="Configure o cookie do lado do servidor">
+    Aqui está um exemplo de configuração de um cookie do lado do servidor.
+
+    <CodeGroup>
+        ```py Python
+        # server.py
+        from flask import Flask, request, make_response
+        import uuid
+        import time
+
+        app = Flask(__name__)
+
+        ONE_YEAR_SECONDS = 365 * 24 * 60 * 60
+
+        @app.before_request
+        def set_visitor_cookie():
+            visitor_id = request.cookies.get("visitor_id")
+
+            if not visitor_id:
+                visitor_id = str(uuid.uuid4())
+
+                request.visitor_id = visitor_id
+            else:
+                request.visitor_id = visitor_id
+
+
+        @app.after_request
+        def apply_cookie(response):
+            if request.cookies.get("visitor_id"):
+                return response
+
+            response.set_cookie(
+                key="visitor_id",
+                value=request.visitor_id,
+                max_age=ONE_YEAR_SECONDS,
+                httponly=True,
+                secure=True,
+                samesite="Lax"
+            )
+
+            return response
+
+
+        @app.route("/")
+        def index():
+            return make_response("Hello World!")
+
+
+        if __name__ == "__main__":
+            app.run(host="0.0.0.0", port=8080)
+        ```
+
+        ```go Go
+        // main.go
+        package main
+
+        import (
+            "log"
+            "net/http"
+            "time"
+
+            "github.com/google/uuid"
+        )
+
+        const oneYear = 365 * 24 * time.Hour
+
+        func visitorMiddleware(next http.Handler) http.Handler {
+            return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+                _, err := r.Cookie("visitor_id")
+
+                if err == http.ErrNoCookie {
+                    visitorID := uuid.New().String()
+
+                    http.SetCookie(w, &http.Cookie{
+                        Name:     "visitor_id",
+                        Value:    visitorID,
+                        Path:     "/",
+                        MaxAge:   int(oneYear.Seconds()),
+                        HttpOnly: true,
+                        Secure:   true,
+                        SameSite: http.SameSiteLaxMode,
+                    })
+                }
+
+                next.ServeHTTP(w, r)
+            })
+        }
+
+        func main() {
+            mux := http.NewServeMux()
+
+            mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+                w.Write([]byte("Hello World!"))
+            })
+
+            handler := visitorMiddleware(mux)
+
+            log.Println("Server running on port 8080")
+            log.Fatal(http.ListenAndServe(":8080", handler))
+        }
+        ```
+
+        ```java Java
+        // VisitorCookieFilter.java
+
+        import jakarta.servlet.FilterChain;
+        import jakarta.servlet.ServletException;
+        import jakarta.servlet.http.Cookie;
+        import jakarta.servlet.http.HttpServletRequest;
+        import jakarta.servlet.http.HttpServletResponse;
+        import org.springframework.stereotype.Component;
+        import org.springframework.web.filter.OncePerRequestFilter;
+
+        import java.io.IOException;
+        import java.util.UUID;
+
+        @Component
+        public class VisitorCookieFilter extends OncePerRequestFilter {
+
+            private static final String COOKIE_NAME = "visitor_id";
+            private static final int ONE_YEAR_SECONDS = 365 * 24 * 60 * 60;
+
+            @Override
+            protected void doFilterInternal(
+                    HttpServletRequest request,
+                    HttpServletResponse response,
+                    FilterChain filterChain
+            ) throws ServletException, IOException {
+
+                boolean hasCookie = false;
+
+                if (request.getCookies() != null) {
+                    for (Cookie cookie : request.getCookies()) {
+                        if (COOKIE_NAME.equals(cookie.getName())) {
+                            hasCookie = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!hasCookie) {
+                    String visitorId = UUID.randomUUID().toString();
+
+                    Cookie cookie = new Cookie(COOKIE_NAME, visitorId);
+                    cookie.setPath("/");
+                    cookie.setHttpOnly(true);
+                    cookie.setSecure(true);
+                    cookie.setMaxAge(ONE_YEAR_SECONDS);
+                    cookie.setAttribute("SameSite", "Lax");
+
+                    response.addCookie(cookie);
+                }
+
+                filterChain.doFilter(request, response);
+            }
+        }
+
+        // HomeController.java
+
+        import org.springframework.web.bind.annotation.GetMapping;
+        import org.springframework.web.bind.annotation.RestController;
+
+        @RestController
+        public class HomeController {
+
+            @GetMapping("/")
+            public String home() {
+                return "Hello World!";
+            }
+        }
+        ```
+    </CodeGroup>
+  </Accordion>
+  <Accordion icon="cookie" title="Envie o cookie como um alias no evento">
+    Uma vez que o cookie do usuário está disponível, você pode enviá-lo assim que um evento de `VIEW_PAGE` for disparado.
+    Abaixo está um exemplo de como fazer isso em React.
+    ```jsx React
+    import { useEffect } from "react";
+    import { useLocation } from "react-router-dom";
+    import Cookies from "js-cookie";
+
+    export function PageTracking() {
+        const location = useLocation();
+
+        useEffect(() => {
+            const visitorId = Cookies.get("visitor_id");
+            if (!visitorId) return;
+
+            solomon.track("VIEW_PAGE", null, {
+                user_id: visitorId
+            });
+
+        }, [location.pathname]);
+
+        return null;
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+Neste exemplo acima utilizamos um cookie de identificação do usuário definido do lado do servidor para
+ser enviado como `userId`.
+
+No entanto, você pode utilizar qualquer outro alias de sua preferência para identificar o usuário, como
+o próprio cart token.

@@ -1,8 +1,8 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "Solomon Admin API",
+    "description": "API aberta para integração com a Solomon",
     "license": {
       "name": "MIT"
     },
@@ -10,45 +10,103 @@
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://admin-api.sandbox.solomon.com.br/admin/v1"
+    },
+    {
+      "url": "https://admin-api.solomon.com.br/admin/v1"
     }
   ],
   "security": [
     {
-      "bearerAuth": []
+      "ApiKeyAuth": []
     }
   ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
+    "/order": {
+      "post": {
+        "summary": "Enviar pedido",
+        "description": "Cria um novo pedido para ser processado assincronamente pela Solomon",
+        "requestBody": {
+          "description": "Pedido a ser processado pela Solomon",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Order"
+              },
+              "example": {
+                "orderId": "ord_123456789",
+                "number": 10234,
+                "name": "Pedido #10234",
+                "orderStatus": 0,
+                "createdAt": "2026-01-10T14:32:10Z",
+                "updatedAt": "2026-01-10T14:35:42Z",
+                "totalPrice": 249.90,
+                "shippingPrice": 19.90,
+                "paymentMethod": 2,
+                "installments": 3,
+                "currency": "BRL",
+                "discountCode": "WELCOME10",
+                "provinceCode": "SP",
+                "countryCode": "BR",
+                "utmSource": "facebook",
+                "utmMedium": "cpc",
+                "utmCampaign": "promo_janeiro",
+                "utmContent": "video_1",
+                "utmTerm": "tenis masculino",
+                "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+                "browserIp": "189.45.123.10",
+                "cartToken": "cart_abcd1234",
+                "customer": {
+                  "customerId": "cus_987654321",
+                  "name": "Cliente Teste",
+                  "email": "cliente_teste@email.com",
+                  "phone": "+5511999999999",
+                  "provinceCode": "SP",
+                  "countryCode": "BR",
+                  "zip": "12230-000",
+                  "city": "São José dos Campos",
+                  "createdAt": "2025-11-02T10:15:00Z",
+                  "updatedAt": "2026-01-10T14:30:00Z"
+                },
+                "items": [
+                  {
+                    "item_id": "item_1",
+                    "productId": "prod_123",
+                    "variantId": "var_azul_42",
+                    "quantity": 1,
+                    "price": 199.90,
+                    "discount": 20.00,
+                    "createdAt": "2026-01-10T14:32:10Z",
+                    "updatedAt": "2026-01-10T14:32:10Z"
+                  }]
+              }              
             }
-          }
-        ],
+          },
+          "required": true
+        },
         "responses": {
-          "200": {
-            "description": "Plant response",
+          "202": {
+            "description": "Pedido recebido e enfileirado para processamento com sucesso",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
+                  "$ref": "#/components/schemas/Success"
                 }
               }
             }
           },
           "400": {
-            "description": "Unexpected error",
+            "description": "Erro de validação dos dados do pedido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor",
             "content": {
               "application/json": {
                 "schema": {
@@ -58,33 +116,65 @@
             }
           }
         }
-      },
+      }
+    },
+    "/product": {
       "post": {
-        "description": "Creates a new plant in the store",
+        "summary": "Enviar produto",
+        "operationId": "createProduct",
+        "description": "Cria um novo produto para ser processado assincronamente pela Solomon",
         "requestBody": {
-          "description": "Plant to add to the store",
+          "description": "Produto a ser processado pela Solomon",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/Product"
+              },
+              "example": {
+                "productId": "prod_123456789",
+                "productName": "Tênis Esportivo Verde",
+                "createdAt": "2026-01-10T14:32:10Z",
+                "updatedAt": "2026-01-10T14:32:10Z",
+                "status": 1,
+                "imageUrl": "https://example.com/image.jpg",
+                "url": "https://example.com/product",
+                "variants": [
+                  {
+                    "variantId": "var_123",
+                    "createdAt": "2026-01-10T14:32:10Z",
+                    "updatedAt": "2026-01-10T14:32:10Z",
+                    "title": "Tênis Esportivo Verde",
+                    "price": 199.90
+                  }
+                ]
               }
             }
           },
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "plant response",
+          "202": {
+            "description": "Produto recebido e enfileirado para processamento com sucesso",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
+                  "$ref": "#/components/schemas/Success"
                 }
               }
             }
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Erro de validação dos dados do produto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor",
             "content": {
               "application/json": {
                 "schema": {
@@ -93,124 +183,381 @@
               }
             }
           }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
       }
     }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "Error": {
         "type": "object",
         "properties": {
-          "name": {
-            "description": "The name of the plant",
+          "success": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          },
+          "request_id": {
             "type": "string"
           },
-          "tag": {
-            "description": "Tag to specify the type",
+          "timestamp": {
             "type": "string"
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+      "Success": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
           },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
+          "request_id": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
           }
-        ]
+        }
       },
-      "Error": {
+      "Order": {
         "required": [
-          "error",
-          "message"
+          "orderId",
+          "name",
+          "orderStatus",
+          "createdAt",
+          "updatedAt",
+          "totalPrice",
+          "paymentMethod",
+          "currency",
+          "provinceCode",
+          "countryCode",
+          "customer",
+          "items"
         ],
         "type": "object",
         "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
+          "orderId": {
+            "description": "ID do pedido",
             "type": "string"
+          },
+          "number": {
+            "description": "Número do pedido",
+            "type": "integer"
+          },
+          "name": {
+            "description": "Nome do pedido",
+            "type": "string"
+          },
+          "orderStatus": {
+            "description": "Status do pedido:\n * 0 - Aprovado\n * 1 - Pendente\n * 2 - Cancelado",
+            "type": "integer",
+            "enum": [0, 1, 2],
+            "example": 0
+          },
+          "createdAt": {
+            "description": "Data de criação do pedido",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            "example": "2026-01-10T14:32:10Z"
+          },
+          "updatedAt": {
+            "description": "Data de atualização do pedido",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            "example": "2026-01-10T14:32:10Z"
+          },
+          "totalPrice": {
+            "description": "Preço total do pedido",
+            "type": "number"
+          },
+          "shippingPrice": {
+            "description": "Preço do frete",
+            "type": "number"
+          },
+          "paymentMethod": {
+            "description": "Método de pagamento utilizado na transação:\n * 1 - Cartão de crédito\n * 2 - Depósito\n * 3 - Boleto\n * 4 - Pix\n * 15 - Outro",
+            "type": "integer",
+            "enum": [1, 2, 3, 4, 15],
+            "example": 1
+          },
+          "installments": {
+            "description": "Número de parcelas",
+            "type": "integer"
+          },
+          "currency": {
+            "description": "Moeda do pedido (ISO 4217)",
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "example": "BRL"
+          },
+          "discountCode": {
+            "description": "Código de desconto ou cupom aplicado no pedido",
+            "type": "string"
+          },
+          "provinceCode": {
+            "description": "Código da província",
+            "type": "string",
+            "example": "SP",
+            "pattern": "^[A-Z]{2}$"
+          },
+          "countryCode": {
+            "description": "Código do país (ISO 3166-1 alpha-2)",
+            "type": "string",
+            "pattern": "^[A-Z]{2}$",
+            "example": "BR"
+          },
+          "utmSource": {
+            "description": "UTM Source presente na URL do pedido",
+            "type": "string"
+          },
+          "utmMedium": {
+            "description": "UTM Medium presente na URL do pedido",
+            "type": "string"
+          },
+          "utmCampaign": {
+            "description": "UTM Campaign presente na URL do pedido",
+            "type": "string"
+          },
+          "utmContent": {
+            "description": "UTM Content presente na URL do pedido",
+            "type": "string"
+          },
+          "utmTerm": {
+            "description": "UTM Term presente na URL do pedido",
+            "type": "string"
+          },
+          "userId": {
+            "description": "ID do usuário que fez o pedido (definido pelo cookie server-side)",
+            "type": "string"
+          },
+          "userAgent": {
+            "description": "User agent do navegador onde o pedido foi feito",
+            "type": "string"
+          },
+          "browserIp": {
+            "description": "IP do navegador onde o pedido foi feito (IPv4 ou IPv6)",
+            "type": "string"
+          },
+          "cartToken": {
+            "description": "Token do carrinho do pedido",
+            "type": "string"
+          },
+          "customer": {
+            "description": "Cliente que fez o pedido",
+            "type": "object",
+            "properties": {
+              "customerId": {
+                "description": "ID do cliente",
+                "type": "string"
+              },
+              "name": {
+                "description": "Nome do cliente",
+                "type": "string"
+              },
+              "email": {
+                "description": "Email do cliente",
+                "type": "string"
+              },
+              "phone": {
+                "description": "Telefone do cliente",
+                "type": "string"
+              },
+              "provinceCode": {
+                "description": "Código da província do cliente",
+                "type": "string",
+                "example": "SP",
+                "pattern": "^[A-Z]{2}$"
+              },
+              "countryCode": {
+                "description": "Código do país do cliente (ISO 3166-1 alpha-2)",
+                "type": "string",
+                "pattern": "^[A-Z]{2}$",
+                "example": "BR"
+              },
+              "zip": {
+                "description": "CEP do cliente",
+                "type": "string"
+              },
+              "city": {
+                "description": "Cidade do cliente",
+                "type": "string"
+              },
+              "createdAt": {
+                "description": "Data de criação do cliente",
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+                "example": "2026-01-10T14:32:10Z"
+              },
+              "updatedAt": {
+                "description": "Data de atualização do cliente",
+                "type": "string"
+              }
+            }
+          },
+          "items": {
+            "description": "Itens do pedido",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "itemId": {
+                  "description": "ID do item do pedido",
+                  "type": "string"
+                },
+                "productId": {
+                  "description": "ID do produto",
+                  "type": "string"
+                },
+                "variantId": {
+                  "description": "ID da variante",
+                  "type": "string"
+                },
+                "quantity": {
+                  "description": "Quantidade do item",
+                  "type": "integer"
+                },
+                "price": {
+                  "description": "Preço do item",
+                  "type": "number"
+                },
+                "discount": {
+                  "description": "Desconto do item",
+                  "type": "number"
+                },
+                "createdAt": {
+                  "description": "Data de criação do item",
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+                  "example": "2026-01-10T14:32:10Z"
+                },
+                "updatedAt": {
+                  "description": "Data de atualização do item",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Product": {
+        "required": [
+          "productId",
+          "productName",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "description": "ID do produto",
+            "type": "string"
+          },
+          "productName": {
+            "description": "Nome do produto",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Data de criação do produto",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            "example": "2026-01-10T14:32:10Z"
+          },
+          "updatedAt": {
+            "description": "Data de atualização do produto",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            "example": "2026-01-10T14:32:10Z"
+          },
+          "status": {
+            "description": "Status do produto:\n * 0 - Inativo\n * 1 - Ativo",
+            "type": "integer",
+            "enum": [0, 1],
+            "example": 1
+          },
+          "imageUrl": {
+            "description": "URL da imagem do produto",
+            "type": "string"
+          },
+          "url": {
+            "description": "URL do produto",
+            "type": "string"
+          },
+          "variants": {
+            "description": "Variantes do produto",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "variantId": {
+                  "description": "ID da variante",
+                  "type": "string"
+                },
+                "createdAt": {
+                  "description": "Data de criação da variante",
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+                  "example": "2026-01-10T14:32:10Z"
+                },
+                "updatedAt": {
+                  "description": "Data de atualização da variante",
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+                  "example": "2026-01-10T14:32:10Z"
+                },
+                "title": {
+                  "description": "Título da variante",
+                  "type": "string"
+                },
+                "price": {
+                  "description": "Preço da variante",
+                  "type": "number"
+                },
+                "cost": {
+                  "description": "Custo da variante",
+                  "type": "number"
+                },
+                "currency": {
+                  "description": "Moeda da variante (ISO 4217)",
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$",
+                  "example": "BRL"
+                },
+                "sku": {
+                  "description": "SKU da variante",
+                  "type": "string"
+                },
+                "imageUrl": {
+                  "description": "URL da imagem da variante",
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
     },
     "securitySchemes": {
-      "bearerAuth": {
+      "ApiKeyAuth": {
         "type": "http",
-        "scheme": "bearer"
+        "scheme": "bearer",
+        "description": "API Key para autenticação"
       }
     }
   }

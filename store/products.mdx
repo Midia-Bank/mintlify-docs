@@ -1,0 +1,171 @@
+---
+title: 'Produtos'
+description: 'Sincronize a criação e atualização de produtos na sua loja com a Solomon'
+---
+
+## Visão geral
+
+Todos os produtos do catálogo da sua loja podem ser enviados para a Solomon sempre que forem **criados ou atualizados**.
+
+A Solomon processa produtos de forma **assíncrona**. Cada envio é enfileirado, consolidado e persistido antes de ficar disponível para consulta na plataforma.
+
+### Processamento assíncrono
+
+- Cada produto enviado é enfileirado para processamento
+- A fila é esvaziada em **até 10 minutos**
+- Apenas após o processamento o produto estará disponível para uso na plataforma
+- Quando múltiplas versões de um mesmo produto são enviadas, **prevalece sempre a versão mais recente**, com base no campo `updatedAt`
+
+---
+
+## Requisição
+
+A criação e atualização de produtos são realizadas por meio de uma API REST utilizando o método `POST`.
+
+O mesmo endpoint é utilizado tanto para **criação** quanto para **atualização** de produtos.  
+O comportamento (create ou update) é determinado exclusivamente pelo campo `productId` e `variantId`.
+
+<CodeGroup>
+
+```py Python
+import requests
+
+res = requests.post("https://admin-api.solomon.com.br/admin/v1/product", json={
+  "productId": "prod_123456789",
+  "productName": "Tênis Esportivo Verde",
+  "createdAt": "2006-01-02 15:04:05",
+  "variants": [{
+    "variantId": "var_123",
+    "createdAt": "2006-01-02 15:04:05"
+    # ...
+  }]
+  # ...
+}, headers={"Authorization": "Bearer YOUR_API_KEY"})
+
+print(f"Status: {res.status_code}")
+print(f"Response: {res.json()}")
+```
+
+```js Javascript
+const res = await fetch("https://admin-api.solomon.com.br/admin/v1/product", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    "productId": "prod_123456789",
+    "productName": "Tênis Esportivo Verde",
+    "createdAt": "2006-01-02 15:04:05"
+    "variants": [{
+      "variantId": "var_123",
+      "createdAt": "2006-01-02 15:04:05"
+      // ...
+    }]
+    // ...
+  })
+});
+
+const data = await res.json();
+res.status, data
+
+console.log(`Status: ${res.status}`);
+console.log(`Response: ${data}`);
+```
+
+```java Java
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+public class Solomon {
+
+    public static void main(String[] args) throws Exception {
+        HttpClient client = HttpClient.newHttpClient();
+
+        String jsonBody = """
+        {
+          "productId": "prod_123456789",
+          "productName": "Tênis Esportivo Verde",
+          "createdAt": "2006-01-02 15:04:05",
+          "variants": [{
+            "variantId": "var_123",
+            "createdAt": "2006-01-02 15:04:05"
+          }]
+        }
+        """;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://admin-api.solomon.com.br/admin/v1/product"))
+                .header("Authorization", "Bearer YOUR_API_KEY")
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
+
+        HttpResponse<String> response =
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        System.out.println("Status: " + response.statusCode());
+        System.out.println("Response: " + response.body());
+    }
+}
+```
+
+```php PHP 
+<?php
+
+$ch = curl_init("https://admin-api.solomon.com.br/admin/v1/product");
+
+$payload = [
+  "productId"     => "prod_123456789",
+  "productName"   => "Tênis Esportivo Verde",
+  "createdAt"     => "2006-01-02 15:04:05"
+  // ...
+];
+
+curl_setopt_array($ch, [
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_POST => true,
+  CURLOPT_HTTPHEADER => [
+    "Authorization: Bearer YOUR_API_KEY",
+    "Content-Type: application/json"
+  ],
+  CURLOPT_POSTFIELDS => json_encode($payload)
+]);
+
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+curl_close($ch);
+
+echo "Status: " . $httpCode . PHP_EOL;
+echo "Response: " . $response . PHP_EOL;
+```
+</CodeGroup>
+
+## Modelo de produtos e variantes
+
+Na Solomon, um **produto** representa uma entidade lógica do catálogo, enquanto as **variantes** representam as unidades comercializáveis.
+
+Com isso, a variante enquanto unidade comercializável é quem possui as definições de preço e de custo em um produto,
+de modo que todo produto deve possuir ao menos uma variante, que pode ser a variante padrão.
+
+Produtos que possuem variações de preço ou de custo por cor, tamanho, modelo, material, voltagem, etc. podem modelar essas diferenças como variantes, 
+onde cada combinação de atributos define uma unidade comercializável distinta, com preço, custo e SKU próprios.
+
+## Idempotência e atualização
+
+Um produto na Solomon representa um item único no catálogo, e cada variante é única para um produto.
+
+O ID do produto e o ID das variantes do produto são utilizados junto a seus respectivos timestamps de atualização
+para assegurar que a versão mais recente de cada um esteja disponível na plataforma.
+
+Assim, para atualizar um produto, é necessário enviá-lo por inteiro com os novos campos atualizados,
+tal como também para atualizar uma variante dentro deste produto -- é preciso enviá-lo por completo.
+
+<Warning>
+O timestamp de atualização do produto e da variante **deve estar sempre em UTC**, 
+garantindo um padrão de consistência para o tratamento desse dado.
+</Warning>
+

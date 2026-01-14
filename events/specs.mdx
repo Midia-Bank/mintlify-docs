@@ -1,0 +1,689 @@
+---
+title: 'Especificações'
+---
+
+Estão listados abaixos todos os eventos e os detalhes de parâmetros enviados automaticamente
+pela Solomon e os parâmetros que devem e que podem ser enviados de maneira customizada.
+
+Cumprir os contratos de dados abaixo garante que possíveis erros de inconsistência de dados
+sejam mitigados, tanto no webanalytics quanto nos modelos de atribuição.
+
+---
+
+## View Page
+
+Evento disparado quando o usuário acessa uma página.
+
+<AccordionGroup>
+  <Accordion icon="code" title="Exemplo">
+        ```js JavaScript
+          solomon.track("VIEW_PAGE")
+        ```
+  </Accordion>
+  <Accordion icon="list" title="Propriedades nativas">
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="user_id" type="string">
+      Cookie de usuário gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="session_id" type="string">
+      Cookie de sessão gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="fbp" type="string">
+      Cookie do navegador gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="fpc" type="string">
+      Cookie do clique gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="page_referrer" type="string">
+      Referrer da página no navegador.
+    </ResponseField>
+
+    <ResponseField name="utm_source" type="string">
+      Parâmetro de utm_source presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_medium" type="string">
+      Parâmetro de utm_medium presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_campaign" type="string">
+      Parâmetro de utm_campaign presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_content" type="string">
+        Parâmetro de utm_content presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_term" type="string">
+        Parâmetro de utm_term presente na URL
+    </ResponseField>
+  </Accordion>
+  <Accordion icon="archive" title="Payload do evento">
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="url" type="string">
+      URL completa da página.
+    </ResponseField>
+
+    <ResponseField name="path" type="string">
+      Caminho da URL da página.
+    </ResponseField>
+  </Accordion>
+</AccordionGroup>
+
+## Content View
+
+Evento disparado quando o usuário acessa a página de um produto.
+
+<AccordionGroup>
+  <Accordion icon="code" title="Exemplo">
+        ```js JavaScript
+          solomon.track("CONTENT_VIEW", {
+            "id": "prod_12345",
+            "variant": "var_azul_23",
+            "title": "Tênis Esportivo Azul",
+            "price": 199.90
+          })
+        ```
+  </Accordion>
+  <Accordion icon="list" title="Propriedades nativas">
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="user_id" type="string">
+      Cookie de usuário gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="session_id" type="string">
+      Cookie de sessão gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="fbp" type="string">
+      Cookie do navegador gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="fpc" type="string">
+      Cookie do clique gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="page_referrer" type="string">
+      Referrer da página no navegador.
+    </ResponseField>
+
+    <ResponseField name="utm_source" type="string">
+      Parâmetro de utm_source presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_medium" type="string">
+      Parâmetro de utm_medium presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_campaign" type="string">
+      Parâmetro de utm_campaign presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_content" type="string">
+        Parâmetro de utm_content presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_term" type="string">
+        Parâmetro de utm_term presente na URL
+    </ResponseField>
+  </Accordion>
+  <Accordion icon="archive" title="Payload do evento">
+    Os campos abaixo precisam ser enviados de maneira customizada.
+
+    <ResponseField name="id" type="string" required>
+      ID do produto ou da variante que foi acessada.
+    </ResponseField>
+
+    <ResponseField name="variant" type="string">
+      ID da variante acessada.
+    </ResponseField>
+
+    <ResponseField name="price" type="number">
+      Preço do produto ou da variante.
+    </ResponseField>
+  
+    <ResponseField name="title" type="string">
+      Título do produto ou da variante.
+    </ResponseField>
+
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="url" type="string">
+      URL completa da página.
+    </ResponseField>
+
+    <ResponseField name="path" type="string">
+      Caminho da URL da página.
+    </ResponseField>
+  </Accordion>
+</AccordionGroup>
+
+## Add To Cart
+
+Evento disparado quando o usuário adiciona um produto ao carrinho.
+
+<AccordionGroup>
+  <Accordion icon="code" title="Exemplo">
+        ```js JavaScript
+          solomon.track("ADD_TO_CART", {
+            "item_id": "prod_12345",
+            "item_quantity": 1
+          })
+        ```
+  </Accordion>
+  <Accordion icon="list" title="Propriedades nativas">
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="user_id" type="string">
+      Cookie de usuário gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="session_id" type="string">
+      Cookie de sessão gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="fbp" type="string">
+      Cookie do navegador gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="fpc" type="string">
+      Cookie do clique gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="page_referrer" type="string">
+      Referrer da página no navegador.
+    </ResponseField>
+
+    <ResponseField name="utm_source" type="string">
+      Parâmetro de utm_source presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_medium" type="string">
+      Parâmetro de utm_medium presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_campaign" type="string">
+      Parâmetro de utm_campaign presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_content" type="string">
+        Parâmetro de utm_content presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_term" type="string">
+        Parâmetro de utm_term presente na URL
+    </ResponseField>
+  </Accordion>
+  <Accordion icon="archive" title="Payload do evento">
+    Os campos abaixo precisam ser enviados de maneira customizada.
+
+    <ResponseField name="item_id" type="string" required>
+      ID do produto ou da variante que foi adicionado
+    </ResponseField>
+
+    <ResponseField name="quantity" type="number" required>
+      Quantidade adicionada
+    </ResponseField>
+
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="url" type="string">
+      URL completa da página.
+    </ResponseField>
+
+    <ResponseField name="path" type="string">
+      Caminho da URL da página.
+    </ResponseField>
+  </Accordion>
+</AccordionGroup>
+
+## Initiate Checkout
+
+Evento disparado quando o usuário acessa a página de checkout.
+
+<AccordionGroup>
+  <Accordion icon="code" title="Exemplo">
+        ```js JavaScript
+          solomon.track("INITIATE_CHECKOUT", {
+            "items": [{
+              "item_id": "prod_12345",
+              "item_quantity": 1
+            }]
+          })
+        ```
+  </Accordion>
+  <Accordion icon="list" title="Propriedades nativas">
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="user_id" type="string">
+      Cookie de usuário gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="session_id" type="string">
+      Cookie de sessão gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="fbp" type="string">
+      Cookie do navegador gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="fpc" type="string">
+      Cookie do clique gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="page_referrer" type="string">
+      Referrer da página no navegador.
+    </ResponseField>
+
+    <ResponseField name="utm_source" type="string">
+      Parâmetro de utm_source presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_medium" type="string">
+      Parâmetro de utm_medium presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_campaign" type="string">
+      Parâmetro de utm_campaign presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_content" type="string">
+        Parâmetro de utm_content presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_term" type="string">
+        Parâmetro de utm_term presente na URL
+    </ResponseField>
+  </Accordion>
+  <Accordion icon="archive" title="Payload do evento">
+    Os campos abaixo precisam ser enviados de maneira customizada.
+
+    <ResponseField name="items" type="Item[]" required>
+      Lista de itens presente no carrinho
+      <Expandable title="Item">
+        <ResponseField name="item_id" type="string" required>
+          ID do produto ou variante adicionado.
+        </ResponseField>
+        <ResponseField name="item_quantity" type="number" required>
+          Quantidade adicionada.
+        </ResponseField>
+
+      </Expandable>
+    </ResponseField>
+
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="url" type="string">
+      URL completa da página.
+    </ResponseField>
+
+    <ResponseField name="path" type="string">
+      Caminho da URL da página.
+    </ResponseField>
+  </Accordion>
+</AccordionGroup>
+
+## Add Shipping Info
+
+Evento disparado quando o usuário preenche informações de entrega.
+
+<AccordionGroup>
+  <Accordion icon="code" title="Exemplo">
+        ```js JavaScript
+          solomon.track("ADD_SHIPPING_INFO", {
+            "items": [{
+              "item_id": "prod_12345",
+              "item_quantity": 1
+            }]
+          })
+        ```
+  </Accordion>
+  <Accordion icon="list" title="Propriedades nativas">
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="user_id" type="string">
+      Cookie de usuário gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="session_id" type="string">
+      Cookie de sessão gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="fbp" type="string">
+      Cookie do navegador gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="fpc" type="string">
+      Cookie do clique gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="page_referrer" type="string">
+      Referrer da página no navegador.
+    </ResponseField>
+
+    <ResponseField name="utm_source" type="string">
+      Parâmetro de utm_source presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_medium" type="string">
+      Parâmetro de utm_medium presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_campaign" type="string">
+      Parâmetro de utm_campaign presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_content" type="string">
+        Parâmetro de utm_content presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_term" type="string">
+        Parâmetro de utm_term presente na URL
+    </ResponseField>
+  </Accordion>
+  <Accordion icon="archive" title="Payload do evento">
+    Os campos abaixo precisam ser enviados de maneira customizada.
+
+    <ResponseField name="items" type="Item[]" required>
+      Lista de itens presente no carrinho
+      <Expandable title="Item">
+        <ResponseField name="item_id" type="string" required>
+          ID do produto ou variante adicionado.
+        </ResponseField>
+        <ResponseField name="item_quantity" type="number" required>
+          Quantidade adicionada.
+        </ResponseField>
+
+      </Expandable>
+    </ResponseField>
+
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="url" type="string">
+      URL completa da página.
+    </ResponseField>
+
+    <ResponseField name="path" type="string">
+      Caminho da URL da página.
+    </ResponseField>
+  </Accordion>
+</AccordionGroup>
+
+## Add Customer Info
+
+Evento disparado quando o usuário preenche informações de contato.
+
+<AccordionGroup>
+  <Accordion icon="code" title="Exemplo">
+        ```js JavaScript
+          solomon.track("ADD_CUSTOMER_INFO", {
+            "items": [{
+              "item_id": "prod_12345",
+              "item_quantity": 1
+            }]
+          })
+        ```
+  </Accordion>
+  <Accordion icon="list" title="Propriedades nativas">
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="user_id" type="string">
+      Cookie de usuário gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="session_id" type="string">
+      Cookie de sessão gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="fbp" type="string">
+      Cookie do navegador gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="fpc" type="string">
+      Cookie do clique gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="page_referrer" type="string">
+      Referrer da página no navegador.
+    </ResponseField>
+
+    <ResponseField name="utm_source" type="string">
+      Parâmetro de utm_source presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_medium" type="string">
+      Parâmetro de utm_medium presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_campaign" type="string">
+      Parâmetro de utm_campaign presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_content" type="string">
+        Parâmetro de utm_content presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_term" type="string">
+        Parâmetro de utm_term presente na URL
+    </ResponseField>
+  </Accordion>
+  <Accordion icon="archive" title="Payload do evento">
+    Os campos abaixo precisam ser enviados de maneira customizada.
+
+    <ResponseField name="items" type="Item[]" required>
+      Lista de itens presente no carrinho
+      <Expandable title="Item">
+        <ResponseField name="item_id" type="string" required>
+          ID do produto ou variante adicionado.
+        </ResponseField>
+        <ResponseField name="item_quantity" type="number" required>
+          Quantidade adicionada.
+        </ResponseField>
+
+      </Expandable>
+    </ResponseField>
+
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="url" type="string">
+      URL completa da página.
+    </ResponseField>
+
+    <ResponseField name="path" type="string">
+      Caminho da URL da página.
+    </ResponseField>
+  </Accordion>
+</AccordionGroup>
+
+
+## Add Payment Info
+
+Evento disparado quando o usuário preenche informações de pagamento.
+
+<AccordionGroup>
+  <Accordion icon="code" title="Exemplo">
+        ```js JavaScript
+          solomon.track("ADD_PAYMENT_INFO", {
+            "items": [{
+              "item_id": "prod_12345",
+              "item_quantity": 1
+            }]
+          })
+        ```
+  </Accordion>
+  <Accordion icon="list" title="Propriedades nativas">
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="user_id" type="string">
+      Cookie de usuário gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="session_id" type="string">
+      Cookie de sessão gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="fbp" type="string">
+      Cookie do navegador gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="fpc" type="string">
+      Cookie do clique gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="page_referrer" type="string">
+      Referrer da página no navegador.
+    </ResponseField>
+
+    <ResponseField name="utm_source" type="string">
+      Parâmetro de utm_source presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_medium" type="string">
+      Parâmetro de utm_medium presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_campaign" type="string">
+      Parâmetro de utm_campaign presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_content" type="string">
+        Parâmetro de utm_content presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_term" type="string">
+        Parâmetro de utm_term presente na URL
+    </ResponseField>
+  </Accordion>
+  <Accordion icon="archive" title="Payload do evento">
+    Os campos abaixo precisam ser enviados de maneira customizada.
+
+    <ResponseField name="items" type="Item[]" required>
+      Lista de itens presente no carrinho
+      <Expandable title="Item">
+        <ResponseField name="item_id" type="string" required>
+          ID do produto ou variante adicionado.
+        </ResponseField>
+        <ResponseField name="item_quantity" type="number" required>
+          Quantidade adicionada.
+        </ResponseField>
+
+      </Expandable>
+    </ResponseField>
+
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="url" type="string">
+      URL completa da página.
+    </ResponseField>
+
+    <ResponseField name="path" type="string">
+      Caminho da URL da página.
+    </ResponseField>
+  </Accordion>
+</AccordionGroup>
+
+## Checkout Completed
+
+Evento disparado quando o usuário finaliza a compra.
+
+<AccordionGroup>
+  <Accordion icon="code" title="Exemplo">
+        ```js JavaScript
+          solomon.track("CHECKOUT_COMPLETED", {
+            "items": [{
+              "item_id": "prod_12345",
+              "item_quantity": 1
+            }]
+          }, {
+            "order_id": "ord_1234567890"
+          })
+        ```
+  </Accordion>
+  <Accordion icon="list" title="Propriedades nativas">
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="user_id" type="string">
+      Cookie de usuário gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="session_id" type="string">
+      Cookie de sessão gerado pela Solomon.
+    </ResponseField>
+
+    <ResponseField name="fbp" type="string">
+      Cookie do navegador gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="fpc" type="string">
+      Cookie do clique gerado pelo Meta.
+    </ResponseField>
+
+    <ResponseField name="page_referrer" type="string">
+      Referrer da página no navegador.
+    </ResponseField>
+
+    <ResponseField name="utm_source" type="string">
+      Parâmetro de utm_source presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_medium" type="string">
+      Parâmetro de utm_medium presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_campaign" type="string">
+      Parâmetro de utm_campaign presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_content" type="string">
+        Parâmetro de utm_content presente na URL
+    </ResponseField>
+
+    <ResponseField name="utm_term" type="string">
+        Parâmetro de utm_term presente na URL
+    </ResponseField>
+  </Accordion>
+  <Accordion icon="archive" title="Payload do evento">
+    Os campos abaixo precisam ser enviados de maneira customizada.
+
+    <ResponseField name="items" type="Item[]" required>
+      Lista de itens presente no carrinho
+      <Expandable title="Item">
+        <ResponseField name="item_id" type="string" required>
+          ID do produto ou variante adicionado.
+        </ResponseField>
+        <ResponseField name="item_quantity" type="number" required>
+          Quantidade adicionada.
+        </ResponseField>
+
+      </Expandable>
+    </ResponseField>
+
+    Todos os campos abaixo são enviados automaticamente em todos os eventos.
+
+    <ResponseField name="url" type="string">
+      URL completa da página.
+    </ResponseField>
+
+    <ResponseField name="path" type="string">
+      Caminho da URL da página.
+    </ResponseField>
+  </Accordion>
+  <Accordion icon="link" title="Aliases">
+    O envio do `order_id` no campo de aliases garante que este evento seja atrelado de maneira direta
+    ao seu pedido enviado via API.
+
+    Você também pode enviar qualquer um dos outros aliases, que incluem:
+    - User ID
+    - Cart Token
+    - Email
+    - Customer ID
+    - Phone
+  </Accordion>
+</AccordionGroup>

@@ -1,33 +1,32 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'Introdução'
+description: 'Use a API reference para construir soluções que conectem com a Solomon'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Endpoints
+- [Enviar Pedido](/api-reference/ingestion/create-order): envia um novo pedido para processamento ou re-processamento
+- [Enviar Produto](/api-reference/ingestion/create-product): envia um novo produto para processamento ou re-processamento
 
-## Welcome
+## Use cases comuns
+- Conectar-se à Solomon com uma plataforma própria
+- Registrar pedidos gerados fora da sua plataforma na Solomon (vendas manuais, marketplaces, POS, etc.)
+- Automatizar a atualização dos custos de produto através de uma integração própria
+- Corrigir ou reprocessar dados históricos de pedidos em massa
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## Autenticação
+Antes de começar, gere suas [chaves de API](/authentication) na Solomon. Cada chave de API pertence a uma loja
+e você pode usar várias chaves a partir de diferentes soluções para a mesma loja.
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
-
-## Authentication
-
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
-
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```
+## Erros padrão
+Além dos erros genéricos abaixo, outros erros mais específicos podem ser encontrados em cada endpoint.
+| Código  | Erro                                    | Descrição                                              |
+| ------- | --------------------------------------- | -------------------------------------------------------|
+| **400** | EOF                                     | Corpo da requisição ausente ou inválido                |
+| **401** | Authorization header is required        | Header `Authorization` não informado                   |
+| **401** | Invalid or expired token                | O token não foi encontrado como válido ou foi revogado |
+| **403** | Token is not valid for this environment | Token não pertence ao ambiente (sandbox / live)        |
+| **403** | Required scope '%s' is missing          | Escopo necessário não está presente na API Key         |
+| **404** | The requested resource was not found    | Endpoint ou recurso inexistente                        |
+| **405** | The requested method is not allowed     | Método HTTP não permitido para o endpoint              |
+| **415** | Content-Type must be application/json   | O `Content-Type` informado no header não é o esperado  |
+| **429** | Rate limit exceeded                     | Limite de requisições excedido para a API Key          |

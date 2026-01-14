@@ -1,0 +1,165 @@
+---
+title: "Desenvolvimento"
+description: "Conecte o site da sua loja à Solomon"
+---
+
+Para conectar-se à Solomon é bastante simples. Primeiro é necessário inicializar o SDK e, uma vez
+tendo iniciado o SDK, depois você pode chamar a função `track` para enviar os eventos.
+
+A inicialização do SDK requer alguns parâmetros que estão listados abaixo.
+
+<ResponseField name="companyId" type="string">
+  É o ID de 20 caracteres que a loja possui na Solomon. 
+</ResponseField>
+
+<ResponseField name="debug" type="boolean">
+  Parâmetro opcional para ativar os logs de debug no console.
+</ResponseField>
+
+<ResponseField name="useTouchpoint" type="boolean">
+  Parâmetro opcional para ativar o envio desses eventos para o pixel.
+</ResponseField>
+
+<Warning>A funcionalidade de atribuição só irá funcionar se os eventos forem enviados para o pixel.</Warning>
+
+## Conectando com a Biblioteca JS
+
+<Steps>
+
+<Step>
+Primeiro, carregue a biblioteca no `body` página.
+```html body
+<script src="https://storage.googleapis.com/solomon-app-scripts/events.min.js"></script>
+```
+</Step>
+
+<Step>
+Inicialize a instância do SDK.
+```html body
+<script>
+  window.solomon = new SolomonSDK({
+    companyId: "SEU_COMPANY_ID",
+    debug: true,
+    useTouchpoint: true
+  });
+</script>
+```
+</Step>
+
+<Step>
+Dispare o evento assim que a página for carregada.
+```html body
+<script>
+  document.addEventListener("DOMContentLoaded", (event) => {
+    window.solomon.track("VIEW_PAGE")
+  });
+</script>
+```
+</Step>
+</Steps>
+
+<Note>
+  Note que a chamada `track` é uma chamada assíncrona, ou seja, não irá retornar nada se não chamar pelo `await`.
+  O monitoramento de erros deve ser feito por meio do console, com a opção `debug` ativada na configuração do SDK.
+</Note>
+
+## Conectando com o Pacote do SDK
+
+Para este exemplo estamos utilizando React, mas a estrutura se mantém em outros frameworks.
+
+<Steps>
+
+<Step>
+Instale o pacote no seu ambiente.
+```bash Terminal
+npm install @solomon-tech/events
+```
+</Step>
+
+<Step>
+Comece criando um contexto para a inicialização do SDK.
+```tsx SolomonContext.tsx
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { SolomonSDK } from '@solomon-tech/events';
+
+export const SolomonContext = createContext<SolomonSDK | null>(null);
+
+export function SolomonProvider({ children }: { children: React.ReactNode }) {
+    const [sdk, setSdk] = useState<SolomonSDK | null>(null);
+
+    useEffect(() => {
+        const instance = new SolomonSDK({
+          companyId: 'SEU_COMPANY_ID',
+          debug: true,
+          useTouchpoint: true,
+        });
+
+        setSdk(instance);
+    }, []);
+
+    if (!sdk) return null;
+
+    return (
+        <TrackContext.Provider value={sdk}>
+        {children}
+        </TrackContext.Provider>
+    );
+}
+```
+</Step>
+
+<Step>
+Após isso, cria um novo hook que será usado para as chamadas.
+```tsx useSolomon.tsx
+import { SolomonSDK } from "@solomon-tech/events";
+import { useContext } from "react";
+import { SolomonContext } from "../contexts/SolomonContext";
+
+export const useSolomon = (): SolomonSDK => {
+    const context = useContext(SolomonContext);
+    if (!context) {
+        throw new Error('useSolomon must be used within a SolomonProvider');
+    }
+    return context;
+};
+```
+</Step>
+
+<Step>
+Implemente um componente envio do evento de visualização de página.
+```tsx Tracker.tsx
+import { useEffect } from 'react';
+import { useSolomon } from '../hooks/useSolomon';
+
+export function PageViewTracker() {
+  const solomon = useSolomon();
+
+  useEffect(() => {
+    solomon.track("VIEW_PAGE");
+  }, [solomon]);
+
+  return null;
+}
+```
+</Step>
+
+<Step>
+Depois, basta renderizar esse componente uma vez por página ou no layout principal:
+
+```tsx App.tsx
+import { SolomonProvider } from './contexts/SolomonContext';
+import { PageViewTracker } from './components/PageViewTracker';
+
+function App() {
+  return (
+    <SolomonProvider>
+      <PageViewTracker />
+      {/* resto da aplicação */}
+    </SolomonProvider>
+  );
+}
+
+export default App;
+```
+</Step>
+</Steps>
