@@ -282,6 +282,10 @@
             "description": "Preço total do pedido",
             "type": "number"
           },
+          "totalDiscounts": {
+            "description": "Desconto total do pedido",
+            "type": "number"
+          },
           "shippingPrice": {
             "description": "Preço do frete",
             "type": "number"
