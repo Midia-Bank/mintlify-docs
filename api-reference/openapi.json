@@ -25,7 +25,7 @@
     "/order": {
       "post": {
         "summary": "Enviar pedido",
-        "description": "Cria um novo pedido para ser processado assincronamente pela Solomon",
+        "description": "Envia um pedido para ser processado assincronamente pela Solomon",
         "requestBody": {
           "description": "Pedido a ser processado pela Solomon",
           "content": {
@@ -123,7 +123,7 @@
       "post": {
         "summary": "Enviar produto",
         "operationId": "createProduct",
-        "description": "Cria um novo produto para ser processado assincronamente pela Solomon",
+        "description": "Envia um produto para ser processado assincronamente pela Solomon",
         "requestBody": {
           "description": "Produto a ser processado pela Solomon",
           "content": {
@@ -361,6 +361,15 @@
           "customer": {
             "description": "Cliente que fez o pedido",
             "type": "object",
+            "required": [
+              "customerId",
+              "name",
+              "email",
+              "provinceCode",
+              "countryCode",
+              "zip",
+              "city"
+            ],
             "properties": {
               "customerId": {
                 "description": "ID do cliente",
@@ -416,6 +425,15 @@
             "type": "array",
             "items": {
               "type": "object",
+              "required": [
+                "itemId",
+                "productId",
+                "variantId",
+                "quantity",
+                "price",
+                "createdAt",
+                "updatedAt"
+              ],
               "properties": {
                 "itemId": {
                   "description": "ID do item do pedido",
@@ -507,6 +525,15 @@
             "type": "array",
             "items": {
               "type": "object",
+              "required": [
+                "variantId",
+                "createdAt",
+                "updatedAt",
+                "title",
+                "price",
+                "currency",
+                "sku"
+              ],
               "properties": {
                 "variantId": {
                   "description": "ID da variante",
