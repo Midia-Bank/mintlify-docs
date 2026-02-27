@@ -32,8 +32,8 @@
             "group": "Eventos do site",
             "pages": [
               "events/concepts",
-              "events/specs",
-              "events/development",
+              "events/events",
+              "events/web",
               "events/mobile"
             ]
           }
