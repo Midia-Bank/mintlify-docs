@@ -1,0 +1,323 @@
+---
+title: "Mobile"
+description: "Conecte o app React Native da sua loja à Solomon"
+---
+
+O SDK React Native da Solomon permite rastrear os mesmos 8 eventos de funil do SDK web, enviando dados
+idênticos para o backend — sem necessidade de qualquer alteração no servidor. Ele foi projetado para
+funcionar tanto em projetos **bare React Native** quanto em **Expo managed workflow**.
+
+A inicialização do SDK requer os mesmos parâmetros do SDK web, com algumas adições específicas para mobile.
+
+<ResponseField name="companyId" type="string">
+  É o ID de 20 caracteres que a loja possui na Solomon.
+</ResponseField>
+
+<ResponseField name="debug" type="boolean">
+  Parâmetro opcional para ativar os logs de debug no console.
+</ResponseField>
+
+<ResponseField name="useTouchpoint" type="boolean">
+  Parâmetro opcional para ativar o envio desses eventos para o pixel.
+
+  <Warning>A funcionalidade de atribuição só irá funcionar se os eventos forem enviados para o pixel.</Warning>
+</ResponseField>
+
+<ResponseField name="appIdentifier" type="string">
+  Parâmetro opcional com o Bundle ID do app (ex: `com.suaempresa.app`). Usado no campo `current_domain` dos eventos de atribuição.
+</ResponseField>
+
+<ResponseField name="storage" type="StorageAdapter">
+  Parâmetro opcional para substituir o `AsyncStorage` padrão por um adapter customizado (ex: MMKV).
+  A interface exige três métodos: `getItem`, `setItem` e `removeItem`, todos retornando `Promise`.
+</ResponseField>
+
+## Instalação
+
+<Steps>
+
+<Step>
+Instale o pacote do SDK e a dependência obrigatória de storage.
+```bash Terminal
+npm install @solomon-tech/events-react-native @react-native-async-storage/async-storage
+```
+</Step>
+
+<Step>
+Opcionalmente, instale as dependências nativas para telemetria completa do device.
+```bash Terminal
+npm install react-native-device-info @react-native-community/netinfo react-native-install-referrer
+```
+
+<Tip>
+  Essas dependências são opcionais. Sem elas o SDK funciona normalmente, mas campos como
+  `device_id`, `device_model`, `connection_type` e `install_referrer` serão preenchidos com valores padrão.
+</Tip>
+</Step>
+
+<Step>
+No iOS, instale os pods nativos.
+```bash Terminal
+cd ios && pod install && cd ..
+```
+</Step>
+
+</Steps>
+
+<Note>
+  Para **Expo managed workflow**, adicione os config plugins no `app.json` para cada dependência opcional instalada:
+  ```json app.json
+  {
+    "expo": {
+      "plugins": [
+        "react-native-device-info",
+        "@react-native-community/netinfo"
+      ]
+    }
+  }
+  ```
+</Note>
+
+## Inicialização
+
+O padrão recomendado é criar um contexto React para disponibilizar o SDK em toda a aplicação.
+
+<Steps>
+
+<Step>
+Crie o contexto e o provider do SDK.
+```tsx SolomonContext.tsx
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { SolomonSDK } from '@solomon-tech/events-react-native';
+
+const SolomonContext = createContext<SolomonSDK | null>(null);
+
+export function SolomonProvider({ children }: { children: React.ReactNode }) {
+  const [sdk, setSdk] = useState<SolomonSDK | null>(null);
+
+  useEffect(() => {
+    const instance = new SolomonSDK({
+      companyId: 'SEU_COMPANY_ID',
+      debug: true,
+      useTouchpoint: true,
+      appIdentifier: 'com.suaempresa.app',
+    });
+
+    setSdk(instance);
+
+    return () => instance.destroy();
+  }, []);
+
+  if (!sdk) return null;
+
+  return (
+    <SolomonContext.Provider value={sdk}>
+      {children}
+    </SolomonContext.Provider>
+  );
+}
+
+export function useSolomon(): SolomonSDK {
+  const context = useContext(SolomonContext);
+  if (!context) {
+    throw new Error('useSolomon deve ser usado dentro de um SolomonProvider');
+  }
+  return context;
+}
+```
+</Step>
+
+<Step>
+Envolva a aplicação com o provider.
+```tsx App.tsx
+import { SolomonProvider } from './contexts/SolomonContext';
+
+export default function App() {
+  return (
+    <SolomonProvider>
+      {/* resto da aplicação */}
+    </SolomonProvider>
+  );
+}
+```
+</Step>
+
+</Steps>
+
+## Rastreamento de telas
+
+Para o SDK saber qual tela o usuário está visualizando, a configuração pode ser
+feita manualmente ou utilizando React Navigation.
+
+
+### Manualmente
+
+Chame `setScreenName` sempre que o usuário navegar para uma nova tela.
+
+```tsx ProductScreen.tsx
+import { useEffect } from 'react';
+import { useSolomon } from '../contexts/SolomonContext';
+
+export function ProductScreen() {
+  const solomon = useSolomon();
+
+  useEffect(() => {
+    solomon.setScreenName('ProductScreen');
+    solomon.track('VIEW_PAGE');
+  }, [solomon]);
+
+  return (/* ... */);
+}
+```
+
+### Com React Navigation
+
+Se você usa React Navigation, o hook `useSolomonScreenTracking` atualiza o nome da tela automaticamente via `setScreenName`.
+O disparo de `VIEW_PAGE` continua sendo responsabilidade de cada tela.
+
+```tsx App.tsx
+import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
+import { SolomonProvider, useSolomon } from './contexts/SolomonContext';
+import { useSolomonScreenTracking } from '@solomon-tech/events-react-native/hooks';
+
+function AppNavigator() {
+  const solomon = useSolomon();
+  const navigationRef = useNavigationContainerRef();
+  const onStateChange = useSolomonScreenTracking(solomon, navigationRef);
+
+  return (
+    <NavigationContainer ref={navigationRef} onStateChange={onStateChange}>
+      {/* suas telas */}
+    </NavigationContainer>
+  );
+}
+
+export default function App() {
+  return (
+    <SolomonProvider>
+      <AppNavigator />
+    </SolomonProvider>
+  );
+}
+```
+
+## Deep links e UTMs
+
+Para que a detecção de pontos de contato funcione corretamente, o SDK precisa ler os **deep links** —
+URLs que abrem o app diretamente (ex: `https://sualoja.com/produto?utm_source=google&utm_medium=cpc`).
+
+Você pode configurar manualmente ou utilizar o hook disponibilizado dentro do pacote.
+
+### Manualmente
+
+```tsx App.tsx
+import { useEffect } from 'react';
+import { Linking } from 'react-native';
+import { useSolomon } from './contexts/SolomonContext';
+
+function DeepLinkHandler() {
+  const solomon = useSolomon();
+
+  useEffect(() => {
+    Linking.getInitialURL().then(url => {
+      if (url) solomon.handleDeepLink(url);
+    });
+
+    const subscription = Linking.addEventListener('url', event => {
+      solomon.handleDeepLink(event.url);
+    });
+
+    return () => subscription.remove();
+  }, [solomon]);
+
+  return null;
+}
+```
+
+### Com o hook
+
+```tsx App.tsx
+import { useSolomonDeepLinks } from '@solomon-tech/events-react-native/hooks';
+import { useSolomon } from './contexts/SolomonContext';
+
+function DeepLinkHandler() {
+  const solomon = useSolomon();
+  useSolomonDeepLinks(solomon);
+  return null;
+}
+```
+
+<Note>
+  Os parâmetros de UTM extraídos de deep links são persistidos no device e enviados em todos os eventos subsequentes,
+  até que um novo deep link com UTMs diferentes seja recebido.
+</Note>
+
+## Disparando eventos
+
+A chamada `track` funciona de forma idêntica ao SDK web. Os mesmos 8 tipos de evento estão disponíveis.
+
+<Steps>
+
+<Step>
+Dispare o evento de visualização de página.
+```tsx
+solomon.track('VIEW_PAGE');
+```
+</Step>
+
+<Step>
+Dispare eventos com payload e aliases.
+```tsx
+// Visualização de produto
+await solomon.track('CONTENT_VIEW', {
+  id: 'produto-123',
+  title: 'Camiseta Azul',
+  price: 49.90,
+  variant: 'M',
+});
+
+// Adição ao carrinho
+await solomon.track('ADD_TO_CART', {
+  item_id: 'produto-123',
+  item_quantity: 2,
+});
+
+// Checkout completo com aliases
+await solomon.track('CHECKOUT_COMPLETED', {
+  items: [{ item_id: 'produto-123', item_quantity: 2 }],
+}, {
+  email: 'cliente@exemplo.com',
+  order_id: 'PED-456',
+  phone: '11999999999',
+});
+```
+
+Os campos disponíveis em `aliases` são: `email`, `phone`, `user_id`, `customer_id`, `cart_token` e `order_id`.
+</Step>
+
+</Steps>
+
+<Note>
+  A chamada `track` é assíncrona. O monitoramento de erros deve ser feito por meio do console,
+  com a opção `debug` ativada na configuração do SDK.
+</Note>
+
+## Storage customizado
+
+Por padrão, o SDK utiliza `AsyncStorage` para persistir dados. Se você preferir usar uma solução mais
+performática como o MMKV, basta passar um adapter customizado na inicialização.
+
+```tsx
+import { MMKV } from 'react-native-mmkv';
+
+const mmkv = new MMKV();
+
+const sdk = new SolomonSDK({
+  companyId: 'SEU_COMPANY_ID',
+  storage: {
+    getItem: (key) => Promise.resolve(mmkv.getString(key) ?? null),
+    setItem: (key, value) => { mmkv.set(key, value); return Promise.resolve(); },
+    removeItem: (key) => { mmkv.delete(key); return Promise.resolve(); },
+  },
+});
+```
