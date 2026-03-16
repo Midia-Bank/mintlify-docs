@@ -53,19 +53,6 @@ solomon.track(eventName: string, payload?: object, customAliases?: object)
   Veja mais em [Conceitos - Aliases](/events/concepts).
 </ResponseField>
 
-<Warning>
-Os `customAliases` devem ser enviados como **terceiro argumento**, separado do payload.
-Não os mescle no payload via `Object.assign` ou spread — isso impede o funcionamento correto da atribuição.
-
-```js
-// ERRADO — aliases mesclados no payload
-solomon.track("CONTENT_VIEW", Object.assign({ id: "123", price: 49.90 }, aliases))
-
-// CORRETO — aliases como terceiro argumento
-solomon.track("CONTENT_VIEW", { id: "123", price: 49.90 }, aliases)
-```
-</Warning>
-
 ---
 
 ## Conectando com a Biblioteca JS
