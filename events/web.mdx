@@ -6,11 +6,19 @@ description: "Conecte o site da sua loja à Solomon"
 Para conectar-se à Solomon é bastante simples. Primeiro é necessário inicializar o SDK e, uma vez
 tendo iniciado o SDK, depois você pode chamar a função `track` para enviar os eventos.
 
+## Inicialização
+
 A inicialização do SDK requer alguns parâmetros que estão listados abaixo.
 
 <ResponseField name="companyId" type="string">
-  É o ID de 20 caracteres que a loja possui na Solomon. 
+  É o ID de 20 caracteres que a loja possui na Solomon.
+  Encontre o seu em **Configurações > Detalhes da Conta > ID da Loja**.
 </ResponseField>
+
+<Warning>
+O `companyId` **não é** a API Key nem o token de autenticação.
+É um identificador alfanumérico de 20 caracteres visível na tela de detalhes da conta (exemplo: `harbQqmdDtLouZxp5EE0`).
+</Warning>
 
 <ResponseField name="debug" type="boolean">
   Parâmetro opcional para ativar os logs de debug no console.
@@ -21,6 +29,44 @@ A inicialização do SDK requer alguns parâmetros que estão listados abaixo.
   
   <Warning>A funcionalidade de atribuição só irá funcionar se os eventos forem enviados para o pixel.</Warning>
 </ResponseField>
+
+## Método `track`
+
+Após a inicialização, o SDK expõe o método `track` para envio de eventos. A assinatura aceita até três argumentos:
+
+```ts
+solomon.track(eventName: string, payload?: object, customAliases?: object)
+```
+
+<ResponseField name="eventName" type="string" required>
+  Nome do evento (ex: `"VIEW_PAGE"`, `"CONTENT_VIEW"`, `"ADD_TO_CART"`, `"CHECKOUT_COMPLETED"`).
+  Veja a lista completa em [Eventos](/events/events).
+</ResponseField>
+
+<ResponseField name="payload" type="object">
+  Dados específicos do evento, como ID do produto ou itens do carrinho.
+  Cada evento possui seu próprio contrato de dados documentado em [Eventos](/events/events).
+</ResponseField>
+
+<ResponseField name="customAliases" type="object">
+  Identificadores do usuário utilizados para atribuição de sessões a pedidos.
+  Veja mais em [Conceitos - Aliases](/events/concepts).
+</ResponseField>
+
+<Warning>
+Os `customAliases` devem ser enviados como **terceiro argumento**, separado do payload.
+Não os mescle no payload via `Object.assign` ou spread — isso impede o funcionamento correto da atribuição.
+
+```js
+// ERRADO — aliases mesclados no payload
+solomon.track("CONTENT_VIEW", Object.assign({ id: "123", price: 49.90 }, aliases))
+
+// CORRETO — aliases como terceiro argumento
+solomon.track("CONTENT_VIEW", { id: "123", price: 49.90 }, aliases)
+```
+</Warning>
+
+---
 
 ## Conectando com a Biblioteca JS
 

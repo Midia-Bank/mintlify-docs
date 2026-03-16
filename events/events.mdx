@@ -88,6 +88,8 @@ Evento disparado quando o usuário acessa a página de um produto.
             "variant": "var_azul_23",
             "title": "Tênis Esportivo Azul",
             "price": 199.90
+          }, {
+            "user_id": "visitor_abc123"
           })
         ```
   </Accordion>
@@ -163,6 +165,15 @@ Evento disparado quando o usuário acessa a página de um produto.
       Caminho da URL da página.
     </ResponseField>
   </Accordion>
+  <Accordion icon="link" title="Aliases">
+    Você pode enviar [aliases](/events/concepts) como terceiro argumento do `track` para melhorar a
+    atribuição de sessões a pedidos. Os aliases disponíveis incluem:
+    - User ID
+    - Cart Token
+    - Email
+    - Customer ID
+    - Phone
+  </Accordion>
 </AccordionGroup>
 
 ## Add To Cart
@@ -175,6 +186,9 @@ Evento disparado quando o usuário adiciona um produto ao carrinho.
           solomon.track("ADD_TO_CART", {
             "item_id": "prod_12345",
             "item_quantity": 1
+          }, {
+            "user_id": "visitor_abc123",
+            "cart_token": "cart_xyz789"
           })
         ```
   </Accordion>
@@ -228,7 +242,7 @@ Evento disparado quando o usuário adiciona um produto ao carrinho.
       ID do produto ou da variante que foi adicionado
     </ResponseField>
 
-    <ResponseField name="quantity" type="number" required>
+    <ResponseField name="item_quantity" type="number" required>
       Quantidade adicionada
     </ResponseField>
 
@@ -241,6 +255,15 @@ Evento disparado quando o usuário adiciona um produto ao carrinho.
     <ResponseField name="path" type="string">
       Caminho da URL da página.
     </ResponseField>
+  </Accordion>
+  <Accordion icon="link" title="Aliases">
+    Você pode enviar [aliases](/events/concepts) como terceiro argumento do `track` para melhorar a
+    atribuição de sessões a pedidos. Os aliases disponíveis incluem:
+    - User ID
+    - Cart Token
+    - Email
+    - Customer ID
+    - Phone
   </Accordion>
 </AccordionGroup>
 
@@ -256,6 +279,9 @@ Evento disparado quando o usuário acessa a página de checkout.
               "item_id": "prod_12345",
               "item_quantity": 1
             }]
+          }, {
+            "user_id": "visitor_abc123",
+            "cart_token": "cart_xyz789"
           })
         ```
   </Accordion>
@@ -327,6 +353,15 @@ Evento disparado quando o usuário acessa a página de checkout.
     <ResponseField name="path" type="string">
       Caminho da URL da página.
     </ResponseField>
+  </Accordion>
+  <Accordion icon="link" title="Aliases">
+    Você pode enviar [aliases](/events/concepts) como terceiro argumento do `track` para melhorar a
+    atribuição de sessões a pedidos. Os aliases disponíveis incluem:
+    - User ID
+    - Cart Token
+    - Email
+    - Customer ID
+    - Phone
   </Accordion>
 </AccordionGroup>
 

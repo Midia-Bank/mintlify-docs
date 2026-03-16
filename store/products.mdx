@@ -165,7 +165,15 @@ Assim, para atualizar um produto, é necessário enviá-lo por inteiro com os no
 tal como também para atualizar uma variante dentro deste produto -- é preciso enviá-lo por completo.
 
 <Warning>
-O timestamp de atualização do produto e da variante **deve estar sempre em UTC**, 
+O timestamp de atualização do produto e da variante **deve estar sempre em UTC**,
 garantindo um padrão de consistência para o tratamento desse dado.
+</Warning>
+
+<Warning>
+Os campos `productId` e `variantId` são a ponte entre produtos e pedidos na plataforma.
+Eles **devem ser idênticos** aos valores enviados no [endpoint de pedidos](/store/orders).
+
+Por exemplo, se o produto foi cadastrado com `variantId: "142"`, o pedido também deve usar `variantId: "142"` — e não uma variação como `"142_xgg"`.
+Inconsistências nesses campos impedem o cruzamento de dados e fazem com que estatísticas de produto fiquem ausentes.
 </Warning>
 

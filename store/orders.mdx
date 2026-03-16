@@ -20,6 +20,40 @@ Essa estratégia garante consistência eventual e tolerância a reenvios e retri
 
 ---
 
+## Status do pedido
+
+O campo `orderStatus` indica o estado atual do pedido e deve ser enviado como um valor inteiro.
+
+| Valor | Status | Descrição |
+|-------|--------|-----------|
+| `0` | Aprovado | Pedido confirmado e pago |
+| `1` | Pendente | Aguardando confirmação de pagamento |
+| `2` | Cancelado | Pedido cancelado |
+
+<Warning>
+Enviar o status incorreto impacta diretamente os relatórios de receita da plataforma.
+Pedidos com status `1` (Pendente) não são contabilizados como receita aprovada.
+</Warning>
+
+## Método de pagamento
+
+O campo `paymentMethod` deve ser enviado como um valor inteiro conforme a tabela abaixo.
+
+| Valor | Método |
+|-------|--------|
+| `1` | Cartão de Crédito |
+| `2` | Depósito / Transferência Bancária |
+| `3` | Boleto |
+| `4` | PIX |
+| `15` | Outro |
+
+<Tip>
+Mapeie os métodos de pagamento da sua loja para os valores acima. Evite enviar `15` (Outro) como fallback genérico,
+pois isso prejudica a análise de métodos de pagamento na plataforma.
+</Tip>
+
+---
+
 ## Requisição
 
 A criação e atualização de pedidos são realizadas por meio de uma API REST utilizando o método `POST`.
@@ -162,13 +196,19 @@ tal como também para atualizar um item do pedido.
 ## Identificação de itens do pedido
 Cada item de um pedido possui três identificadores distintos, com papéis diferentes.
 
-O `itemId` é um identificador único do item dentro do pedido e permite múltiplas entradas 
+O `itemId` é um identificador único do item dentro do pedido e permite múltiplas entradas
 da mesma variante com preços ou condições diferentes.
 
-Por vez, o `variantId` identificador da variante do produto e o `productId` é o próprio 
+Por vez, o `variantId` identificador da variante do produto e o `productId` é o próprio
 identificador do produto.
 
-É fundamental que esses identificadores sejam enviados corretamente para garantir consistência dos dados.
+<Warning>
+Os campos `productId` e `variantId` são a ponte entre pedidos e produtos na plataforma.
+Eles **devem ser idênticos** aos valores enviados no [endpoint de produtos](/store/products).
+
+Por exemplo, se o produto foi cadastrado com `variantId: "142"`, o pedido também deve usar `variantId: "142"` — e não uma variação como `"142_xgg"`.
+Inconsistências nesses campos impedem o cruzamento de dados e fazem com que estatísticas de produto fiquem ausentes.
+</Warning>
 
 ## Cruzamento de dados e jornada do cliente
 

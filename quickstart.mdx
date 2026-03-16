@@ -3,9 +3,9 @@ title: "Início Rápido"
 description: "Envie seus primeiros dados para a Solomon em poucos minutos"
 ---
 
-## Comece em três passos
+## Comece em quatro passos
 
-Configure sua integração com a Solomon e envie seus primeiros pedidos e eventos.
+Configure sua integração com a Solomon e envie seus primeiros pedidos, produtos e eventos.
 
 ### Passo 1: Configure o acesso à API
 
@@ -91,7 +91,44 @@ Configure sua integração com a Solomon e envie seus primeiros pedidos e evento
 </AccordionGroup>
 
 
-### Passo 3: Envie um evento com o SDK
+### Passo 3: Envie seus produtos
+
+<AccordionGroup>
+  <Accordion icon="box" title="Enviar um produto via API">
+    Faça uma requisição `POST` para o endpoint de produtos:
+
+    ```bash
+    curl -X POST https://admin-api.solomon.com.br/admin/v1/product \
+      -H "Authorization: Bearer YOUR_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "productId": "prod_123",
+        "productName": "Tênis Esportivo Verde",
+        "createdAt": "2026-01-10T14:00:00Z",
+        "updatedAt": "2026-01-10T14:00:00Z",
+        "status": 1,
+        "variants": [{
+          "variantId": "var_azul_42",
+          "title": "Tênis Esportivo Verde - Azul 42",
+          "sku": "TEN-VER-AZU-42",
+          "price": 199.90,
+          "currency": "BRL",
+          "createdAt": "2026-01-10T14:00:00Z",
+          "updatedAt": "2026-01-10T14:00:00Z"
+        }]
+      }'
+    ```
+
+    Se a requisição for bem-sucedida, o produto será registrado na Solomon.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+O envio de produtos é essencial para que dados de funil de produto e estatísticas apareçam na plataforma.
+Envie o catálogo completo logo no início da integração e mantenha-o atualizado conforme produtos forem criados ou alterados.
+</Warning>
+
+### Passo 4: Envie um evento com o SDK
 
 <AccordionGroup>
   <Accordion icon="bolt" title="Instale e inicialize o SDK">
