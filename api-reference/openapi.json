@@ -364,8 +364,8 @@
           "origin": {
             "description": "Origem do pedido:\n * 0 - Web\n * 1 - Marketplace\n * 2 - App",
             "type": "integer",
-            "enum": [1, 2, 3],
-            "example": 1
+            "enum": [0, 1, 2],
+            "example": 0
           },
           "customer": {
             "description": "Cliente que fez o pedido",
