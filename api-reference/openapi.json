@@ -361,6 +361,12 @@
             "description": "Token do carrinho do pedido",
             "type": "string"
           },
+          "origin": {
+            "description": "Origem do pedido:\n * 0 - Web\n * 1 - Marketplace\n * 2 - App",
+            "type": "integer",
+            "enum": [1, 2, 3],
+            "example": 1
+          },
           "customer": {
             "description": "Cliente que fez o pedido",
             "type": "object",
