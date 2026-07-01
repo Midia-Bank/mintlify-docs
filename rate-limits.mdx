@@ -1,0 +1,67 @@
+---
+title: 'Limites de uso'
+description: 'Como funcionam os limites de requisição (rate limit) das APIs da Solomon'
+---
+
+## Visão geral
+
+Para garantir estabilidade e um processamento justo entre todas as lojas, as APIs de ingestão da Solomon aplicam **limites de uso (rate limit)** por **API Key**.
+
+Os limites funcionam assim:
+
+- **Por API Key** — cada chave tem seu próprio orçamento de requisições.
+- **Em duas janelas** — uma **janela curta de 30 minutos**, que protege contra picos, e um **teto diário**. Você precisa respeitar as duas.
+- **Independentes por recurso** — [pedidos](/store/orders) e [produtos](/store/products) têm limites separados. Consumir o limite de pedidos não afeta o de produtos, e vice-versa.
+
+<Note>
+O limite é contado por **requisição**: cada chamada ao endpoint de pedidos conta como **1 pedido** e cada chamada ao endpoint de produtos conta como **1 produto** — independente da quantidade de itens ou variantes no corpo.
+</Note>
+
+## Cabeçalhos de resposta
+
+As respostas das rotas de ingestão incluem cabeçalhos que informam o estado do seu limite na **janela curta (30 minutos)**:
+
+| Cabeçalho | Descrição |
+|-----------|-----------|
+| `X-RateLimit-Limit` | Total de requisições permitidas na janela de 30 minutos |
+| `X-RateLimit-Remaining` | Quantas ainda restam na janela atual |
+| `Retry-After` | Presente apenas na resposta `429`: segundos a aguardar antes de tentar de novo |
+
+## Quando o limite é atingido
+
+Ao ultrapassar qualquer uma das janelas (curta ou diária), a API responde com **`HTTP 429 Too Many Requests`** e **não processa** a requisição:
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "quota_exceeded",
+    "message": "Rate limit exceeded for orders"
+  },
+  "request_id": "a1b2c3d4-…",
+  "timestamp": "2026-07-01T18:30:00Z"
+}
+```
+
+O cabeçalho `Retry-After` indica em quantos segundos a próxima tentativa é aceita.
+
+<Warning>
+Um `429` **não** significa que o pedido ou produto foi salvo. A requisição foi recusada e **precisa ser reenviada** após o intervalo indicado. Nenhum dado é perdido — é só uma questão de ritmo.
+</Warning>
+
+## Boas práticas
+
+- **Respeite o `Retry-After`** — aguarde o tempo indicado antes de reenviar. Evite reenviar em loop imediato, o que só prolonga o bloqueio.
+- **Use backoff exponencial** ao receber `429` (ex.: 1s, 2s, 4s, 8s…), somando um pequeno _jitter_ aleatório para não sincronizar retries.
+- **Distribua os envios** — em vez de disparar um grande lote de uma só vez, espalhe as requisições ao longo do tempo. Isso mantém você dentro da janela curta.
+- **Trate `429` como transitório** — é um sinal de ritmo, não um erro permanente. Basta reenviar depois do intervalo.
+
+## Limites por plano
+
+Os valores exatos dos limites variam conforme o **plano** e o **volume** da sua loja, e o plano padrão cobre com folga a operação típica.
+
+Se você tem eventos de **alto volume** — como lives ou grandes campanhas — e precisa de limites maiores para períodos de pico, fale com o nosso time:
+
+<Card title="Falar com o suporte" icon="envelope" href="mailto:suporte@solomon.com.br">
+  Solicite a revisão dos limites da sua loja para janelas de alto volume.
+</Card>
