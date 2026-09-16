@@ -1,12 +1,14 @@
-# ⚠️ Repositório aposentado
+# ⚠️ Antes de editar aqui, confira com o time
 
-**A fonte oficial da documentação da Solomon é [`Midia-Bank/docs`](https://github.com/Midia-Bank/docs)** — é de lá que `docs.solomon.com.br` e `solomon.mintlify.app` são publicados, com a integração do GitHub App da Mintlify (dashboard-editor + PRs automáticas de changelog).
+Uma checagem em 15/09/2026 encontrou outro repositório de documentação, [`Midia-Bank/docs`](https://github.com/Midia-Bank/docs), que parece mais atualizado que este:
 
-Este repositório (`mintlify-docs`) foi criado em 01/07/2026 como um snapshot e não recebe atividade desde então — nunca foi a fonte publicada em produção. Ele diverge de `Midia-Bank/docs` (que segue sendo atualizado; hoje tem changelog, `api-reference/costs`, `api-reference/influencers` e `management/*` que este repositório não tem).
+- `docs` teve commits nos últimos 30 dias; este repositório não tem mudança desde a criação (01/07/2026, um commit só).
+- `docs.solomon.com.br` e `solomon.mintlify.app` parecem servir o conteúdo de `docs`, não o deste repositório.
+- `docs` tem páginas que este não tem (changelog, `api-reference/costs`, `api-reference/influencers`, `management/*`).
 
-**Se você chegou aqui procurando onde editar a documentação, é em [`Midia-Bank/docs`](https://github.com/Midia-Bank/docs).**
+**Isso NÃO é uma decisão oficial de que este repositório está aposentado** — é só o que uma checagem pontual encontrou, e ninguém do time confirmou ainda. Se você sabe que este repositório ainda é usado por algum motivo que essa checagem não capturou, ignore este aviso (ou apague-o).
 
-Nada foi apagado — o conteúdo deste repositório continua aqui como histórico.
+Nada foi apagado — é só um aviso, reversível.
 
 ---
 
