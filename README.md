@@ -1,3 +1,20 @@
+# ⚠️ Antes de editar aqui, confira com o time
+
+Uma checagem em 15/09/2026 encontrou outro repositório de documentação, [`Midia-Bank/docs`](https://github.com/Midia-Bank/docs), que parece mais atualizado que este:
+
+- `docs` teve commits nos últimos 30 dias; este repositório não tem mudança desde a criação (01/07/2026, um commit só).
+- `docs.solomon.com.br` e `solomon.mintlify.app` parecem servir o conteúdo de `docs`, não o deste repositório.
+- `docs` tem páginas que este não tem (changelog, `api-reference/costs`, `api-reference/influencers`, `management/*`).
+
+**Isso NÃO é uma decisão oficial de que este repositório está aposentado** — é só o que uma checagem pontual encontrou, e ninguém do time confirmou ainda. Se você sabe que este repositório ainda é usado por algum motivo que essa checagem não capturou, ignore este aviso (ou apague-o).
+
+Nada foi apagado — é só um aviso, reversível.
+
+---
+
+<details>
+<summary>README original (Mintlify Starter Kit)</summary>
+
 # Mintlify Starter Kit
 
 Use the starter kit to get your docs deployed and ready to customize.
@@ -41,3 +58,5 @@ Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/sett
 
 ### Resources
 - [Mintlify documentation](https://mintlify.com/docs)
+
+</details>
